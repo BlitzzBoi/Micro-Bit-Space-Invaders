@@ -1,0 +1,69 @@
+input.onButtonPressed(Button.A, function () {
+    player.move(-1)
+})
+input.onButtonPressed(Button.AB, function () {
+    shoot = game.createSprite(player.get(LedSpriteProperty.X), player.get(LedSpriteProperty.Y))
+    shoot.change(LedSpriteProperty.Brightness, 100)
+
+    // SHOOTING SFX
+
+    music.playTone(262, music.beat(BeatFraction.Quarter))
+    for (let index = 0; index < 4; index++) {
+        shoot.change(LedSpriteProperty.Y, -1)
+        basic.pause(200)
+        if (shoot.isTouching(invaders)) {
+            game.addScore(1)
+            invaders.delete()
+
+            // KILLS SFX
+
+            music.playTone(330, music.beat(BeatFraction.Half))
+            shoot.delete()
+            break;
+        }
+    }
+    shoot.delete()
+})
+input.onButtonPressed(Button.B, function () {
+    player.move(1)
+})
+let invaders: game.LedSprite = null
+let shoot: game.LedSprite = null
+let player: game.LedSprite = null
+player = game.createSprite(2, 4)
+game.setScore(0)
+basic.forever(function () {
+    invaders = game.createSprite(randint(0, 4), 0)
+    invaders.set(LedSpriteProperty.Brightness, 200)
+    basic.pause(100)
+    invaders.turn(Direction.Right, 90)
+    for (let index = 0; index < 4; index++) {
+        invaders.move(1)
+        basic.pause(500)
+        if (invaders.isTouching(player)) {
+
+            // GAME OVER SFX
+
+            music.playTone(494, music.beat(BeatFraction.Breve))
+            if (game.score() >= 15) {
+
+                // WIN SFX
+
+                music.startMelody(music.builtInMelody(Melodies.Prelude), MelodyOptions.Forever)
+            } else {
+
+                // LOSE SFX
+
+                music.startMelody(music.builtInMelody(Melodies.Funeral), MelodyOptions.Forever)
+            }
+            game.gameOver()
+
+            // EXIT LOOP
+            
+            break;
+        }
+    }
+    if (!(game.isGameOver())) {
+        invaders.delete()
+    }
+})
